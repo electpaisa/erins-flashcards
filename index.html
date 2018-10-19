@@ -103,18 +103,17 @@
       }
 
       goToViewMode() {
+        console.log("wtf");
         var clonedState = JSON.parse(JSON.stringify(this.state));
         clonedState.formState.mode = 2;
-        this.setState(() => clonedState);
-        this.pickACard();
+        this.pickACard(clonedState);
       }
 
       clearCaptureInput() {
         document.getElementById("input-pane").value = "";
       }
 
-      pickACard() {
-        var clonedState = JSON.parse(JSON.stringify(this.state));
+      pickACard(clonedState) {
         if (clonedState.seenCards.length === clonedState.cards.length) {
           clonedState.unseenCards = state.cards.slice(0);
           clonedState.seenCards = [];
@@ -133,8 +132,7 @@
         clonedState.answerVisible = true;
       } else {
         clonedState.answerVisible = false;
-        this.setState(() => clonedState);
-        this.pickACard();
+        this.pickACard(clonedState);
       }
     }
 
@@ -167,7 +165,7 @@
         return (<div>
         <form id="form" className={ this.modeClass() }>
           <div className="line right" id="swap-btns">
-            <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode()}>Add Card</a>
+            <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode() }>Add Card</a>
             <a className="btn hide-in-view" id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
           </div>
           <div id="capture-pane" className="hide-in-view">
