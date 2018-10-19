@@ -98,14 +98,14 @@
       goToCaptureMode() {
         var clonedState = JSON.parse(JSON.stringify(this.state));
         clonedState.formState.mode = 1;
-        this.setState(clonedState);
+        this.setState(() => clonedState);
         this.clearCaptureInput();
       }
 
       goToViewMode() {
         var clonedState = JSON.parse(JSON.stringify(this.state));
         clonedState.formState.mode = 2;
-        this.setState(clonedState);
+        this.setState(() => clonedState);
         this.pickACard();
       }
 
@@ -124,7 +124,7 @@
         console.log(pickedCard);
         clonedState.currCard = pickedCard[0];
         clonedState.seenCards.push(pickedCard[0]);
-        this.setState(clonedState);
+        this.setState(() => clonedState);
     }
 
     showAnswer() {
@@ -133,7 +133,7 @@
         clonedState.answerVisible = true;
       } else {
         clonedState.answerVisible = false;
-        this.setState(clonedState);
+        this.setState(() => clonedState);
         this.pickACard();
       }
     }
@@ -148,10 +148,10 @@
         var newCard = { id: clonedState.cards.length + 1, question: clonedState.formState.inputs[0], answer: clonedState.formState.inputs[1] };
         clonedState.cards.push(newCard);
         clonedState.unseenCards.push(newCard);
-        clonedState.formState = { phase: 1, inputs: [] };
+        clonedState.formState = { phase: 1, inputs: [], mode: 1 };
         localStorage.setItem("cards", JSON.stringify(clonedState.cards));
-        this.setState(clonedState);
       }
+      this.setState(() => clonedState);
     }
 
     modeClass() {
