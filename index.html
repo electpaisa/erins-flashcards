@@ -96,19 +96,17 @@
       }
 
       goToCaptureMode() {
-        state.mode = 1;
-        document.getElementById("form").className = "capture-mode";
-        clearCaptureInput();
-      }
-
-      refreshState() {
-        document.getElementById("result-view").innerHTML = JSON.stringify(state, null, 2);
+        var clonedState = JSON.parse(JSON.stringify(this.state));
+        clonedState.formState.mode = 1;
+        this.setState(clonedState);
+        this.clearCaptureInput();
       }
 
       goToViewMode() {
-        state.mode = 2;
-        document.getElementById("form").className = "view-mode";
-        pickACard();
+        var clonedState = JSON.parse(JSON.stringify(this.state));
+        clonedState.formState.mode = 2;
+        this.setState(clonedState);
+        this.pickACard();
       }
 
       clearCaptureInput() {
@@ -116,72 +114,87 @@
       }
 
       pickACard() {
-      if (state.seenCards.length === state.cards.length) {
-        state.unseenCards = state.cards.slice(0);
-        state.seenCards = [];
-      }
-      document.querySelector("#view-mode").className = "hide-in-capture show-question";
-      var randomCardIndex = Math.floor(Math.random() * state.unseenCards.length),
-        pickedCard = state.unseenCards.splice(randomCardIndex, 1);
-      console.log(pickedCard);
-      state.currCard = pickedCard[0];
-      state.seenCards.push(pickedCard[0]);
-      document.getElementById("question-display").innerHTML = "Q: " + state.currCard.question;
-      document.getElementById("answer-display").innerHTML = "A: " + state.currCard.answer;
-      refreshState();
+        var clonedState = JSON.parse(JSON.stringify(this.state));
+        if (clonedState.seenCards.length === clonedState.cards.length) {
+          clonedState.unseenCards = state.cards.slice(0);
+          clonedState.seenCards = [];
+        }
+        var randomCardIndex = Math.floor(Math.random() * clonedState.unseenCards.length);
+        var pickedCard = clonedState.unseenCards.splice(randomCardIndex, 1);
+        console.log(pickedCard);
+        clonedState.currCard = pickedCard[0];
+        clonedState.seenCards.push(pickedCard[0]);
+        this.setState(clonedState);
     }
 
     showAnswer() {
-      if (!state.answerVisible) {
-        document.querySelector("#view-mode").className = "hide-in-capture show-answer";
-        state.answerVisible = true;
+      var clonedState = JSON.parse(JSON.stringify(this.state));
+      if (!clonedState.answerVisible) {
+        clonedState.answerVisible = true;
       } else {
-        state.answerVisible = false;
-        pickACard();
+        clonedState.answerVisible = false;
+        this.setState(clonedState);
+        this.pickACard();
       }
-      refreshState();
     }
 
     captureContinue() {
-      state.formState.inputs.push(document.getElementById("input-pane").value);
-      clearCaptureInput();
-      state.formState.phase += 1;
-      if (state.formState.phase > 2) {
-        var newCard = { id: state.cards.length + 1, question: state.formState.inputs[0], answer: state.formState.inputs[1] };
-        state.cards.push(newCard);
-        state.unseenCards.push(newCard);
-        state.formState = { phase: 1, inputs: [] };
-        localStorage.setItem("cards", JSON.stringify(state.cards));
+      var clonedState = JSON.parse(JSON.stringify(this.state));
+      console.log(clonedState);
+      clonedState.formState.inputs.push(document.getElementById("input-pane").value);
+      this.clearCaptureInput();
+      clonedState.formState.phase += 1;
+      if (clonedState.formState.phase > 2) {
+        var newCard = { id: clonedState.cards.length + 1, question: clonedState.formState.inputs[0], answer: clonedState.formState.inputs[1] };
+        clonedState.cards.push(newCard);
+        clonedState.unseenCards.push(newCard);
+        clonedState.formState = { phase: 1, inputs: [] };
+        localStorage.setItem("cards", JSON.stringify(clonedState.cards));
+        this.setState(clonedState);
       }
-      refreshState();
     }
+
+    modeClass() {
+      return this.state.formState.mode == 1 ? 'capture-mode' : (this.state.formState.mode == 2 ? 'view-mode' : 'invalid');
+    }
+
+    printState () {
+      return JSON.stringify(this.state, null, 2);
+    } 
 
 
       render() {
         return (<div>
-        <form id="form" className="capture-mode">
-    <div className="line right" id="swap-btns">
-      <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode()}>Add Card</a>
-      <a className="btn hide-in-view" id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
-    </div>
-    <div id="capture-pane" className="hide-in-view">
-      <div className="center line">
-        <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
-      </div>
+        <form id="form" className={ this.modeClass() }>
+          <div className="line right" id="swap-btns">
+            <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode()}>Add Card</a>
+            <a className="btn hide-in-view" id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
+          </div>
+          <div id="capture-pane" className="hide-in-view">
+            <div className="center line">
+              <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
+            </div>
+            <div className="line">
+              <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
+            </div>
+          </div>
+          <ViewCard card={this.state.currCard} answerVisible={this.state.answerVisible} onClick={this.showAnswer} />
+        </form>
+        <pre id="result-view">{ this.printState() }</pre>
+        </div>);
+      }
+    }
+    
+    class ViewCard extends React.Component{
+
+      render() {
+        return (<div id="view-mode" className="hide-in-capture">
+      <div className="line" id="question-display" className={ this.props.answerVisible ? 'hidden' : '' }>Q: { this.props.card.question }</div>
+      <div className="line" id="answer-display" className={ this.props.answerVisible ? '' : 'hidden' }>A: { this.props.card.answer }</div>
       <div className="line">
-        <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
+        <a onClick={this.props.onClick}>Next</a>
       </div>
-    </div>
-    <div id="view-mode" className="hide-in-capture show-question">
-      <div className="line" id="question-display"></div>
-      <div className="line" id="answer-display"></div>
-      <div className="line">
-        <a onClick={() => this.showAnswer()}>Next</a>
-      </div>
-    </div>
-  </form>
-  <pre id="result-view">{JSON.stringify(this.state, null, 2)}</pre>
-  </div>);
+      </div>);
       }
     }
 
