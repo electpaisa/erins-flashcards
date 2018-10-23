@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf8" />
+  <meta charset="utf-8" />
   <title>Chill babe!</title>
   <style>
     html {
@@ -59,10 +58,7 @@
       margin: 1rem 0;
     }
 
-    .capture-mode .hide-in-capture,
-    .view-mode .hide-in-view,
-    .show-question #answer-display,
-    .show-answer #question-display {
+    .hidden{
       display: none;
     }
 
@@ -71,108 +67,155 @@
     }
   </style>
 </head>
-
 <body>
-  <form id="form" class="capture-mode">
-    <div class="line right" id="swap-btns">
-      <a class="btn hide-in-capture" id="capture-mode-btn" href="javascript:goToCaptureMode()">Add Card</a>
-      <a class="btn hide-in-view" id="view-mode-btn" href="javascript:goToViewMode();">View cards</a>
-    </div>
-    <div id="capture-pane" class="hide-in-view">
-      <div class="center line">
-        <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
-      </div>
-      <div class="line">
-        <a class="btn" id="continue-btn" href="javascript:captureContinue()">Continue</a>
-      </div>
-    </div>
-    <div id="view-mode" class="hide-in-capture show-question">
-      <div class="line" id="question-display"></div>
-      <div class="line" id="answer-display"></div>
-      <div class="line">
-        <a href="javascript:showAnswer()">Next</a>
-      </div>
-    </div>
-  </form>
-  <pre id="result-view"></pre>
-  <script>
-
-    function refreshState() {
-      document.getElementById("result-view").innerHTML = JSON.stringify(state, null, 2);
-    }
-
-    function goToCaptureMode() {
-      state.mode = 1;
-      document.getElementById("form").className = "capture-mode";
-      clearCaptureInput();
-    }
-
-    function goToViewMode() {
-      state.mode = 2;
-      document.getElementById("form").className = "view-mode";
-      pickACard();
-    }
-
-    function clearCaptureInput() {
-      document.getElementById("input-pane").value = "";
-    }
-
-    function pickACard() {
-      if (state.seenCards.length === state.cards.length) {
-        state.unseenCards = state.cards.slice(0);
-        state.seenCards = [];
+  <div id="app-container"></div>
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
+  <script type="text/babel">
+    class FlashcardsApp extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          cards: JSON.parse(localStorage.getItem("cards") || "[]"),
+          seenCards: [],
+          unseenCards: JSON.parse(localStorage.getItem("cards") || "[]"),
+          formState: {
+            phase: 1,
+            inputs: [],
+            mode: 1
+          },
+          currCard: {},
+          answerVisible: false
+        };
       }
-      document.querySelector("#view-mode").className = "hide-in-capture show-question";
-      var randomCardIndex = Math.floor(Math.random() * state.unseenCards.length),
-        pickedCard = state.unseenCards.splice(randomCardIndex, 1);
-      console.log(pickedCard);
-      state.currCard = pickedCard[0];
-      state.seenCards.push(pickedCard[0]);
-      document.getElementById("question-display").innerHTML = "Q: " + state.currCard.question;
-      document.getElementById("answer-display").innerHTML = "A: " + state.currCard.answer;
-      refreshState();
+
+      goToCaptureMode() {
+        this.setState(() => ({ formState : { phase: 1, inputs: [], mode : 1 } }));
+        this.clearCaptureInput();
+      }
+
+      goToViewMode() {
+        this.setState(() => ({ formState : { phase: 1, inputs: [], mode : 2 } }), () => {
+          if (this.state.cards && this.state.cards.length) {
+            this.pickACard();
+          }
+        });
+      }
+
+      clearCaptureInput() {
+        document.getElementById("input-pane").value = "";
+      }
+
+      pickACard() {
+        if (this.state.seenCards.length === this.state.cards.length) {
+          this.state.unseenCards = this.state.cards.slice(0);
+          this.state.seenCards = [];
+        }
+        var randomCardIndex = Math.floor(Math.random() * this.state.unseenCards.length);
+        let unseenCards = this.state.unseenCards.slice(0); //cloning arrays, as the gospel of ReactJS wants it
+        let seenCards = this.state.seenCards.slice(0);
+        var pickedCard = unseenCards.splice(randomCardIndex, 1);
+        seenCards.push(pickedCard[0]);
+        this.setState(() => ({ currCard : pickedCard[0], seenCards, unseenCards }));
     }
 
-    function showAnswer() {
-      if (!state.answerVisible) {
-        document.querySelector("#view-mode").className = "hide-in-capture show-answer";
-        state.answerVisible = true;
+    showAnswer() {
+      if (!this.state.answerVisible) {
+        this.setState(() => ({ answerVisible : true }));
       } else {
-        state.answerVisible = false;
-        pickACard();
+        this.setState(() => ({ answerVisible : false }), () => {
+          this.pickACard();
+        });
       }
-      refreshState();
     }
 
-    function captureContinue() {
-      state.formState.inputs.push(document.getElementById("input-pane").value);
-      clearCaptureInput();
-      state.formState.phase += 1;
-      if (state.formState.phase > 2) {
-        var newCard = { id: state.cards.length + 1, question: state.formState.inputs[0], answer: state.formState.inputs[1] };
-        state.cards.push(newCard);
-        state.unseenCards.push(newCard);
-        state.formState = { phase: 1, inputs: [] };
-        localStorage.setItem("cards", JSON.stringify(state.cards));
+    captureContinue() {
+      let inputs = this.state.formState.inputs.slice(0) || [];
+      inputs.push(document.getElementById("input-pane").value); 
+      this.clearCaptureInput();
+      let phase = this.state.formState.phase + 1;
+      if (phase > 2) {
+        let newCard = { id: this.state.cards.length + 1, question: inputs[0], answer: inputs[1] };
+        let cards = this.state.cards.slice(0) || [];
+        let unseenCards = this.state.unseenCards.slice(0) || [];
+        cards.push(newCard);
+        unseenCards.push(newCard);
+        this.setState(() => ({ formState: { phase : 1, inputs : [], mode : 1 }, cards, unseenCards }));
+      } else {
+        this.setState(() => ({ formState: { phase, inputs, mode : 1 } }));
       }
-      refreshState();
     }
 
-    window.state = {
-      cards: JSON.parse(localStorage.getItem("cards") || "[]"),
-      seenCards: [],
-      unseenCards: JSON.parse(localStorage.getItem("cards") || "[]"),
-      formState: {
-        phase: 1,
-        inputs: [],
-        mode: 1
-      },
-      currCard: {},
-      answerVisible: false
-    };
+    printState () {
+      return JSON.stringify(this.state, null, 2);
+    }
 
-    refreshState()
+    modeClass() {
+      return this.state.formState.mode == 1 ? 'capture-mode' : (this.state.formState.mode == 2 ? 'view-mode' : 'invalid');
+    }
+
+    showClass(booley) {
+      if (!!booley) return 'visible';
+      return 'hidden';
+    }
+
+    hideClass(booley) {
+      return this.showClass(!booley);
+    }
+
+
+      render() {
+        return (<div>
+        <form id="form">
+          <div className="line right" id="swap-btns">
+            <a className={this.showClass(this.state.formState.mode == 2) + ' btn'} id="capture-mode-btn" onClick={() => this.goToCaptureMode() }>Add Card</a>
+            <a className={this.showClass(this.state.formState.mode == 1) + ' btn'} id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
+          </div>
+          <p>You have {this.state.cards.length} cards</p>
+          <div id="capture-pane" className={this.showClass(this.state.formState.mode == 1)}>
+            <div className="center line">
+              <h2>Type your { this.state.formState.phase === 1 ? "Question" : "Answer" }</h2>
+              <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
+            </div>
+            <div className="line">
+              <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
+            </div>
+          </div>
+          <ViewPane cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer() } hidden={this.state.formState.mode == 1}/>
+        </form>
+        <pre id="result-view">{ this.printState() }</pre>
+        </div>);
+      }
+    }
+
+    class ViewPane extends React.Component {
+
+      render() { return (<div className={this.props.hidden ? 'hidden' : ''}>
+      <div className={this.props.cards && this.props.cards.length ? '' : 'hidden'}>
+        <ViewCard card={this.props.currentCard} answerVisible={this.props.answerVisible} onClick={this.props.viewCardNextContinue} />
+      </div>
+      <div className={this.props.cards && this.props.cards.length ? 'hidden': ''}>
+        <h3>You have to make flashcards first, silly goose :-)</h3>
+      </div>
+      </div>) };
+    }
+    
+    class ViewCard extends React.Component{
+
+      render() {
+        return (<div id="view-mode">
+      <div className="line" id="question-display" className={ this.props.answerVisible ? 'hidden' : '' }>Q: { this.props.card.question }</div>
+      <div className="line" id="answer-display" className={ this.props.answerVisible ? '' : 'hidden' }>A: { this.props.card.answer }</div>
+      <div className="line">
+        <a onClick={this.props.onClick}>Next</a>
+      </div>
+      </div>);
+      }
+    }
+
+    const domContainer = document.querySelector('#app-container');
+    ReactDOM.render(<FlashcardsApp></FlashcardsApp>, domContainer);
   </script>
 </body>
-
 </html>
