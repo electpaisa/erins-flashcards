@@ -104,7 +104,9 @@
 
       goToViewMode() {
         this.setState(() => ({ formState : { phase: 1, inputs: [], mode : 2 } }), () => {
-          this.pickACard();
+          if (this.state.cards && this.state.cards.length) {
+            this.pickACard();
+          }
         });
       }
 
@@ -168,6 +170,7 @@
             <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode() }>Add Card</a>
             <a className="btn hide-in-view" id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
           </div>
+          <p>You have {this.state.cards.length} cards</p>
           <div id="capture-pane" className="hide-in-view">
             <div className="center line">
               <h2>Type your { this.state.formState.phase === 1 ? "Question" : "Answer" }</h2>
@@ -177,7 +180,12 @@
               <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
             </div>
           </div>
-          <ViewCard card={this.state.currCard} answerVisible={this.state.answerVisible} onClick={() => this.showAnswer() } />
+          <div className={ this.state.cards.length ? '': 'hidden'}>
+            <ViewCard card={this.state.currCard} answerVisible={this.state.answerVisible} onClick={() => this.showAnswer() } />
+          </div>
+          <div className={ this.state.cards.length ? 'hidden': ''}>
+            <h3>You have to make flashcards first, silly goose :-)</h3>
+          </div>
         </form>
         <pre id="result-view">{ this.printState() }</pre>
         </div>);
