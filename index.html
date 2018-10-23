@@ -62,10 +62,8 @@
       display: none;
     }
 
-    .capture-mode .hide-in-capture,
-    .view-mode .hide-in-view,
-    .show-question #answer-display,
-    .show-answer #question-display {
+    
+    .view-mode .hide-in-view {
       display: none;
     }
 
@@ -180,22 +178,29 @@
               <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
             </div>
           </div>
-          <div className={ this.state.cards.length ? '': 'hidden'}>
-            <ViewCard card={this.state.currCard} answerVisible={this.state.answerVisible} onClick={() => this.showAnswer() } />
-          </div>
-          <div className={ this.state.cards.length ? 'hidden': ''}>
-            <h3>You have to make flashcards first, silly goose :-)</h3>
-          </div>
+          <ViewPane cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer() } hidden={this.state.formState.mode == 1}/>
         </form>
         <pre id="result-view">{ this.printState() }</pre>
         </div>);
       }
     }
+
+    class ViewPane extends React.Component {
+
+      render() { return (<div className={this.props.hidden ? 'hidden' : ''}>
+      <div className={this.props.cards && this.props.cards.length ? '' : 'hidden'}>
+        <ViewCard card={this.props.currentCard} answerVisible={this.props.answerVisible} onClick={this.props.viewCardNextContinue} />
+      </div>
+      <div className={this.props.cards && this.props.cards.length ? 'hidden': ''}>
+        <h3>You have to make flashcards first, silly goose :-)</h3>
+      </div>
+      </div>) };
+    }
     
     class ViewCard extends React.Component{
 
       render() {
-        return (<div id="view-mode" className="hide-in-capture">
+        return (<div id="view-mode">
       <div className="line" id="question-display" className={ this.props.answerVisible ? 'hidden' : '' }>Q: { this.props.card.question }</div>
       <div className="line" id="answer-display" className={ this.props.answerVisible ? '' : 'hidden' }>A: { this.props.card.answer }</div>
       <div className="line">
