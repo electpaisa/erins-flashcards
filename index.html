@@ -62,11 +62,6 @@
       display: none;
     }
 
-    
-    .view-mode .hide-in-view {
-      display: none;
-    }
-
     #input-pane {
       resize: none;
     }
@@ -152,24 +147,33 @@
       }
     }
 
+    printState () {
+      return JSON.stringify(this.state, null, 2);
+    }
+
     modeClass() {
       return this.state.formState.mode == 1 ? 'capture-mode' : (this.state.formState.mode == 2 ? 'view-mode' : 'invalid');
     }
 
-    printState () {
-      return JSON.stringify(this.state, null, 2);
-    } 
+    showClass(booley) {
+      if (!!booley) return 'visible';
+      return 'hidden';
+    }
+
+    hideClass(booley) {
+      return this.showClass(!booley);
+    }
 
 
       render() {
         return (<div>
-        <form id="form" className={ this.modeClass() }>
+        <form id="form">
           <div className="line right" id="swap-btns">
-            <a className="btn hide-in-capture" id="capture-mode-btn" onClick={() => this.goToCaptureMode() }>Add Card</a>
-            <a className="btn hide-in-view" id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
+            <a className={this.showClass(this.state.formState.mode == 2) + ' btn'} id="capture-mode-btn" onClick={() => this.goToCaptureMode() }>Add Card</a>
+            <a className={this.showClass(this.state.formState.mode == 1) + ' btn'} id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
           </div>
           <p>You have {this.state.cards.length} cards</p>
-          <div id="capture-pane" className="hide-in-view">
+          <div id="capture-pane" className={this.showClass(this.state.formState.mode == 1)}>
             <div className="center line">
               <h2>Type your { this.state.formState.phase === 1 ? "Question" : "Answer" }</h2>
               <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
