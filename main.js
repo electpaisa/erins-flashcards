@@ -17,6 +17,9 @@ app.on('ready', function() {
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
 
     Menu.setApplicationMenu(mainMenu);
+    mainWindow.on("close", (e) => {
+        app.quit();
+    })
 });
 
 // function createAddWindow() {
