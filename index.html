@@ -141,7 +141,9 @@
         let unseenCards = this.state.unseenCards.slice(0) || [];
         cards.push(newCard);
         unseenCards.push(newCard);
-        this.setState(() => ({ formState: { phase : 1, inputs : [], mode : 1 }, cards, unseenCards }));
+        this.setState(() => ({ formState: { phase : 1, inputs : [], mode : 1 }, cards, unseenCards }), () => {
+          localStorage.setItem("cards", JSON.stringify(cards));
+        });
       } else {
         this.setState(() => ({ formState: { phase, inputs, mode : 1 } }));
       }
