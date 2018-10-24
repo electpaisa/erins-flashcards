@@ -1,0 +1,31 @@
+{
+  "name": "erins-flashcards",
+  "version": "1.0.0",
+  "description": "A little app to help my baby study",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/electron .",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/esrobado.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . erins-flashcards --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/esrobado.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Tutorial App\"",    
+    "package-linux": "electron-packager . erins-flashcards --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/esrobado.png --prune=true --out=release-builds"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electpaisa/erins-flashcards.git"
+  },
+  "keywords": [
+    "reactjs",
+    "electron"
+  ],
+  "author": "CJAB",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/electpaisa/erins-flashcards/issues"
+  },
+  "homepage": "https://github.com/electpaisa/erins-flashcards#readme",
+  "devDependencies": {
+    "electron": "^3.0.5",
+    "electron-packager": "^12.2.0"
+  }
+}
