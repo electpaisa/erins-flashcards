@@ -37,7 +37,7 @@ const mainMenuTemplate = [{
     // },
     {
         label:'Quit',
-        accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+        accelerator: 'CmdOrCtrl+Q',
         click() {app.quit();}
     }]
 }]
@@ -53,7 +53,7 @@ if (process.env.NODE_ENV !== 'production') {
             submenu: [
                 {
                     label: 'Toggle DevTools',
-                    accelerator: process.platform == 'darwin' ? "Command+I" : 'Ctrl+I',
+                    accelerator: "CmdOrCtrl+I",
                     click(item, focusedWindow) {
                         focusedWindow.toggleDevTools();
                     }
