@@ -59,9 +59,11 @@ class FlashcardsApp extends React.Component {
     }
 
     captureContinue() {
-        let inputs = this.state.formState.inputs.slice(0) || [];
-        inputs.push(document.getElementById("input-pane").value);
+        let inputs = this.state.formState.inputs.slice(0) || [],
+            inputElem = document.getElementById("input-pane");
+        inputs.push(inputElem.value);
         this.clearCaptureInput();
+        inputElem.focus();
         let phase = this.state.formState.phase + 1;
         if (phase > 2) {
             let newCard = { id: this.state.cards.length + 1, question: inputs[0], answer: inputs[1] };
@@ -103,15 +105,7 @@ class FlashcardsApp extends React.Component {
                     <a className={this.showClass(this.state.formState.mode == 1) + ' btn'} id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
                 </div>
                 <p>You have {this.state.cards.length} cards</p>
-                <div id="capture-pane" className={this.showClass(this.state.formState.mode == 1)}>
-                    <div className="center line">
-                        <h2>Type your {this.state.formState.phase === 1 ? "Question" : "Answer"}</h2>
-                        <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
-                    </div>
-                    <div className="line">
-                        <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
-                    </div>
-                </div>
+                <CapturePane cssClass={this.showClass(this.state.formState.mode == 1)} phase={this.state.formState.phase } onClick={() => this.captureContinue()} />
                 <ViewPane cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer()} hidden={this.state.formState.mode == 1} />
             </form>
             <pre id="result-view">{this.printState()}</pre>
@@ -131,6 +125,20 @@ class ViewPane extends React.Component {
             </div>
         </div>)
     };
+}
+
+class CapturePane extends React.Component {
+    render() {
+        return (<div id="capture-pane" className={this.props.cssClass}>
+        <div className="center line">
+            <h2>Type your {this.props.phase === 1 ? "Question" : "Answer"}</h2>
+            <textarea id="input-pane" placeholder="..." rows="10" cols="80" autoFocus></textarea>
+        </div>
+        <div className="line">
+            <a className="btn" id="continue-btn" onClick={this.props.onClick}>Continue</a>
+        </div>
+    </div>);
+    }
 }
 
 class ViewCard extends React.Component {
