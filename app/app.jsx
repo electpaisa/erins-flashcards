@@ -59,9 +59,11 @@ class FlashcardsApp extends React.Component {
     }
 
     captureContinue() {
-        let inputs = this.state.formState.inputs.slice(0) || [];
-        inputs.push(document.getElementById("input-pane").value);
+        let inputs = this.state.formState.inputs.slice(0) || [],
+            inputElem = document.getElementById("input-pane");
+        inputs.push(inputElem.value);
         this.clearCaptureInput();
+        inputElem.focus();
         let phase = this.state.formState.phase + 1;
         if (phase > 2) {
             let newCard = { id: this.state.cards.length + 1, question: inputs[0], answer: inputs[1] };
@@ -106,7 +108,7 @@ class FlashcardsApp extends React.Component {
                 <div id="capture-pane" className={this.showClass(this.state.formState.mode == 1)}>
                     <div className="center line">
                         <h2>Type your {this.state.formState.phase === 1 ? "Question" : "Answer"}</h2>
-                        <textarea id="input-pane" placeholder="..." rows="10" cols="80"></textarea>
+                        <textarea id="input-pane" placeholder="..." rows="10" cols="80" autoFocus></textarea>
                     </div>
                     <div className="line">
                         <a className="btn" id="continue-btn" onClick={() => this.captureContinue()}>Continue</a>
