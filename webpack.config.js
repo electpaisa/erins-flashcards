@@ -8,6 +8,7 @@ const BUILD_DIR = path.resolve(__dirname, '');
 const APP_DIR = path.resolve(__dirname, 'app');
 
 var config = {
+    target: 'electron-renderer',
     entry: APP_DIR + '/app.jsx',
     output: {
         path: BUILD_DIR,
