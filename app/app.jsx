@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ViewPane from './ViewPane';
+import { CapturePane } from './CapturePane';
+import * as CONSTS from "./constants";
 
 class FlashcardsApp extends React.Component {
     constructor(props) {
@@ -96,8 +99,18 @@ class FlashcardsApp extends React.Component {
         return this.showClass(!booley);
     }
 
+    stackSelectHandler(cardId, stack) {
+        console.log(`assigning card ID ${cardId} to stack ${stack}`);
+    }
 
     render() {
+        console.log(this.state.cards);
+        const getAllStacks = (this.state.cards ? this.state.cards
+            .map((card) => card.stack || '') : [])
+            .concat(['', CONSTS.ADD_NEW_STACK_SENTINEL_VALUE, CONSTS.SEND_TO_TRASH_STACK_SENTINEL_VALUE]);
+        console.log(getAllStacks);
+        const filteredStacks = getAllStacks.filter((v, i, arr) => arr.indexOf(v) === i);
+        console.log(filteredStacks);
         return (<div>
             <form id="form">
                 <div className="line right" id="swap-btns">
@@ -106,50 +119,9 @@ class FlashcardsApp extends React.Component {
                 </div>
                 <p>You have {this.state.cards.length} cards</p>
                 <CapturePane cssClass={this.showClass(this.state.formState.mode == 1)} phase={this.state.formState.phase } onClick={() => this.captureContinue()} />
-                <ViewPane cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer()} hidden={this.state.formState.mode == 1} />
+                <ViewPane stackSelectHandler={this.stackSelectHandler} stacks={filteredStacks} cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer()} hidden={this.state.formState.mode == 1} />
             </form>
             <pre id="result-view">{this.printState()}</pre>
-        </div>);
-    }
-}
-
-class ViewPane extends React.Component {
-
-    render() {
-        return (<div className={this.props.hidden ? 'hidden' : ''}>
-            <div className={this.props.cards && this.props.cards.length ? '' : 'hidden'}>
-                <ViewCard card={this.props.currentCard} answerVisible={this.props.answerVisible} onClick={this.props.viewCardNextContinue} />
-            </div>
-            <div className={this.props.cards && this.props.cards.length ? 'hidden' : ''}>
-                <h3>You have to make flashcards first, silly goose :-)</h3>
-            </div>
-        </div>)
-    };
-}
-
-class CapturePane extends React.Component {
-    render() {
-        return (<div id="capture-pane" className={this.props.cssClass}>
-        <div className="center line">
-            <h2>Type your {this.props.phase === 1 ? "Question" : "Answer"}</h2>
-            <textarea id="input-pane" placeholder="..." rows="10" cols="80" autoFocus></textarea>
-        </div>
-        <div className="line">
-            <a className="btn" id="continue-btn" onClick={this.props.onClick}>Continue</a>
-        </div>
-    </div>);
-    }
-}
-
-class ViewCard extends React.Component {
-
-    render() {
-        return (<div id="view-mode">
-            <div className="line" id="question-display" className={this.props.answerVisible ? 'hidden' : ''}>Q: {this.props.card.question}</div>
-            <div className="line" id="answer-display" className={this.props.answerVisible ? '' : 'hidden'}>A: {this.props.card.answer}</div>
-            <div className="line">
-                <a onClick={this.props.onClick}>Next</a>
-            </div>
         </div>);
     }
 }

@@ -7,7 +7,7 @@ const { app, BrowserWindow, Menu } = electron;
 let mainWindow;
 
 app.on('ready', function () {
-    mainWindow = new BrowserWindow({});
+    mainWindow = new BrowserWindow({width: 1400, height: 800});
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),
         protocol: 'file:',
