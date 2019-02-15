@@ -102,6 +102,26 @@ class FlashcardsApp extends React.Component {
 
     moveCardToStackHandler(cardId, stack) {
         console.log(`assigning card ID ${cardId} to stack ${stack}`);
+        if (stack === CONSTS.ADD_NEW_STACK_SENTINEL_VALUE) {
+            // if we're here, we have to create the new stack, but I dunno how to do that
+            return; // TODO: for now do nothing
+        }
+        // clone the card array
+        let newCards = this.state.cards.slice(0) || [];
+        // find the card, there's probably a smarter way to do this, but I dunno it
+        let indexOfModified = 0;
+        for(let i = 0; i < newCards.length; i++) {
+            if (newCards[i].id === cardId) {
+                indexOfModified = i;
+                break;
+            }
+        }
+        // change the stack in the card
+        newCards[indexOfModified].stack = stack;
+        this.setState((state) => ({...state, cards: newCards}), () => {
+            // if the state got changed, save to localstorage
+            localStorage.setItem("cards", JSON.stringify(newCards));
+        })
     }
 
     selectStackHandler(stack) {
@@ -127,7 +147,7 @@ class FlashcardsApp extends React.Component {
                 <p>You have {this.state.cards.length} cards</p>
                 <CapturePane cssClass={this.showClass(this.state.formState.mode == 1)} phase={this.state.formState.phase } onClick={() => this.captureContinue()} />
                 <ViewPane
-                    moveCardToStackHandler={this.moveCardToStackHandler}
+                    moveCardToStackHandler={this.moveCardToStackHandler.bind(this)}
                     stacks={this.allStacks}
                     cards={this.state.cards}
                     currentCard={this.state.currCard}

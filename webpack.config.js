@@ -20,7 +20,7 @@ var config = {
             'process.env': {
                 NODE_ENV: JSON.stringify('development')
             }
-        })
+        }),
     ],
     module : {
         rules: [
@@ -34,7 +34,8 @@ var config = {
                 use : {
                     loader: 'babel-loader',
                     query: {
-                        presets: ['es2015', 'react']
+                        presets: ['es2015', 'react'],
+                        plugins:[ 'transform-object-rest-spread' ]
                     },
                 },
             }
