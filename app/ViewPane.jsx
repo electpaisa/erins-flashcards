@@ -1,16 +1,34 @@
 import React from 'react';
 import ViewCard from "./ViewCard";
+import { buildStackOptions } from "./stackUtils";
 
-const ViewPane = ({hidden, cards, stacks, currentCard, answerVisible, viewCardNextContinue, stackSelectHandler}) => {
-    
-    return (<div className={hidden ? 'hidden' : ''}>
-        <div className={cards && cards.length ? '' : 'hidden'}>
-            <ViewCard stackSelectHandler={stackSelectHandler} stacks={stacks} card={currentCard} answerVisible={answerVisible} onClick={viewCardNextContinue} />
-        </div>
-        <div className={cards && cards.length ? 'hidden' : ''}>
-            <h3>You have to make flashcards first, silly goose :-)</h3>
-        </div>
-    </div>);
+export default class ViewPane extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const {
+            hidden,
+            cards,
+            stacks,
+            currentCard,
+            answerVisible,
+            viewCardNextContinue,
+            moveCardToStackHandler,
+            currentStack,
+            stackSelectHandler } = this.props;
+            const filteredCards = cards.filter(c => (c.stack || "") === currentStack);
+        return (<div className={hidden ? 'hidden' : ''}>
+            <div>
+                <label>View stack:</label>
+                <select onChange={(e) => stackSelectHandler(e.target.value)}>{buildStackOptions(stacks, false)}</select>
+            </div>
+            {
+                filteredCards && filteredCards.length
+                ? <ViewCard moveCardToStackHandler={moveCardToStackHandler} stacks={stacks} card={currentCard} answerVisible={answerVisible} onClick={viewCardNextContinue} />
+                : <h3>You have to make flashcards first, silly goose :-)</h3>
+            }
+        </div>);
+    }
 }
-
-export default ViewPane;

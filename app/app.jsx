@@ -17,6 +17,7 @@ class FlashcardsApp extends React.Component {
                 mode: 1
             },
             currCard: {},
+            currStack: '',
             answerVisible: false
         };
     }
@@ -99,18 +100,24 @@ class FlashcardsApp extends React.Component {
         return this.showClass(!booley);
     }
 
-    stackSelectHandler(cardId, stack) {
+    moveCardToStackHandler(cardId, stack) {
         console.log(`assigning card ID ${cardId} to stack ${stack}`);
     }
 
-    render() {
-        console.log(this.state.cards);
+    selectStackHandler(stack) {
+        console.log("did this happen", stack);
+        this.setState({currStack: stack});
+    };
+
+    get allStacks() {
         const getAllStacks = (this.state.cards ? this.state.cards
             .map((card) => card.stack || '') : [])
-            .concat(['', CONSTS.ADD_NEW_STACK_SENTINEL_VALUE, CONSTS.SEND_TO_TRASH_STACK_SENTINEL_VALUE]);
-        console.log(getAllStacks);
+            .concat(['', CONSTS.SEND_TO_TRASH_STACK_SENTINEL_VALUE]);
         const filteredStacks = getAllStacks.filter((v, i, arr) => arr.indexOf(v) === i);
-        console.log(filteredStacks);
+        return filteredStacks;
+    }
+
+    render() {
         return (<div>
             <form id="form">
                 <div className="line right" id="swap-btns">
@@ -119,7 +126,16 @@ class FlashcardsApp extends React.Component {
                 </div>
                 <p>You have {this.state.cards.length} cards</p>
                 <CapturePane cssClass={this.showClass(this.state.formState.mode == 1)} phase={this.state.formState.phase } onClick={() => this.captureContinue()} />
-                <ViewPane stackSelectHandler={this.stackSelectHandler} stacks={filteredStacks} cards={this.state.cards} currentCard={this.state.currCard} answerVisible={this.state.answerVisible} viewCardNextContinue={() => this.showAnswer()} hidden={this.state.formState.mode == 1} />
+                <ViewPane
+                    moveCardToStackHandler={this.moveCardToStackHandler}
+                    stacks={this.allStacks}
+                    cards={this.state.cards}
+                    currentCard={this.state.currCard}
+                    answerVisible={this.state.answerVisible}
+                    viewCardNextContinue={() => this.showAnswer()}
+                    hidden={this.state.formState.mode == 1}
+                    currentStack={this.state.currStack}
+                    stackSelectHandler={this.selectStackHandler.bind(this)}/>
             </form>
             <pre id="result-view">{this.printState()}</pre>
         </div>);
