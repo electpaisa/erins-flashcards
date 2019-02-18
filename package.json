@@ -6,6 +6,7 @@
   "scripts": {
     "pack": "webpack",
     "start": "npm run pack && electron .",
+    "start:web" : "webpack-dev-server --env.web --hot",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/esrobado.icns --prune=true --out=release-builds",
     "package-win": "electron-packager . erins-flashcards --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/esrobado.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Tutorial App\"",
     "package-linux": "electron-packager . erins-flashcards --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/esrobado.png --prune=true --out=release-builds"
@@ -33,9 +34,12 @@
     "electron": "^3.0.5",
     "electron-packager": "^12.2.0",
     "webpack": "^4.23.1",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
+    "@emotion/core": "^10.0.7",
+    "@emotion/styled": "^10.0.7",
     "babel-core": "^6.26.3",
     "react": "^16.6.0",
     "react-dom": "^16.6.0"

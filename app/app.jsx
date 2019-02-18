@@ -12,8 +12,6 @@ class FlashcardsApp extends React.Component {
             seenCards: [],
             unseenCards: JSON.parse(localStorage.getItem("cards") || "[]"),
             formState: {
-                phase: 1,
-                inputs: [],
                 mode: 1
             },
             currCard: {},
@@ -29,7 +27,9 @@ class FlashcardsApp extends React.Component {
 
     goToViewMode() {
         this.setState(() => ({ formState: { phase: 1, inputs: [], mode: 2 } }), () => {
-            if (this.state.cards && this.state.cards.length) {
+            if (this.currentStackOfCards
+         && this.currentStackOfCards
+        .length) {
                 this.pickACard();
             }
         });
@@ -40,8 +40,8 @@ class FlashcardsApp extends React.Component {
     }
 
     pickACard() {
-        if (this.state.seenCards.length === this.state.cards.length) {
-            this.state.unseenCards = this.state.cards.slice(0);
+        if (this.state.seenCards.length === this.currentStackOfCards.length) {
+            this.state.unseenCards = this.currentStackOfCards.slice(0);
             this.state.seenCards = [];
         }
         var randomCardIndex = Math.floor(Math.random() * this.state.unseenCards.length);
@@ -62,25 +62,18 @@ class FlashcardsApp extends React.Component {
         }
     }
 
-    captureContinue() {
-        let inputs = this.state.formState.inputs.slice(0) || [],
-            inputElem = document.getElementById("input-pane");
-        inputs.push(inputElem.value);
-        this.clearCaptureInput();
-        inputElem.focus();
-        let phase = this.state.formState.phase + 1;
-        if (phase > 2) {
-            let newCard = { id: this.state.cards.length + 1, question: inputs[0], answer: inputs[1] };
-            let cards = this.state.cards.slice(0) || [];
-            let unseenCards = this.state.unseenCards.slice(0) || [];
-            cards.push(newCard);
-            unseenCards.push(newCard);
-            this.setState(() => ({ formState: { phase: 1, inputs: [], mode: 1 }, cards, unseenCards }), () => {
-                localStorage.setItem("cards", JSON.stringify(cards));
-            });
-        } else {
-            this.setState(() => ({ formState: { phase, inputs, mode: 1 } }));
-        }
+    addCard(card, callback) {
+        const {cards, unseenCards } = this.state;
+        card.id = cards.length;
+        let newCards = cards.slice(0),
+            newUnseenCards = unseenCards.slice(0);
+        newCards.push(card);
+        newUnseenCards.push(card);
+
+        this.setState({...this.state, cards : newCards, unseenCards: newUnseenCards}, () => {
+            localStorage.setItem("cards", JSON.stringify(newCards));
+            callback();
+        })
     }
 
     printState() {
@@ -103,8 +96,8 @@ class FlashcardsApp extends React.Component {
     moveCardToStackHandler(cardId, stack) {
         console.log(`assigning card ID ${cardId} to stack ${stack}`);
         if (stack === CONSTS.ADD_NEW_STACK_SENTINEL_VALUE) {
-            // if we're here, we have to create the new stack, but I dunno how to do that
-            return; // TODO: for now do nothing
+            // little low rent, but it'll do for now
+            stack = prompt("What d'you wanna call the new stack?", '').trim();
         }
         // clone the card array
         let newCards = this.state.cards.slice(0) || [];
@@ -126,7 +119,14 @@ class FlashcardsApp extends React.Component {
 
     selectStackHandler(stack) {
         console.log("did this happen", stack);
-        this.setState({currStack: stack});
+        this.setState(() => ({
+            ...this.state,
+            currStack: stack,
+            seenCards : [],
+            unseenCards: this.state.cards.filter(c => (c.stack|| "") === (stack || "")) // we have to duplicate this since the state hasn't been updated
+        }), () => {
+            this.pickACard();
+        });
     };
 
     get allStacks() {
@@ -137,19 +137,36 @@ class FlashcardsApp extends React.Component {
         return filteredStacks;
     }
 
+    get currentStackOfCards() {
+        return this.state.cards.filter(c => (c.stack|| "") === (this.state.currStack || ""));
+    }
+
+    getCurrentButton(formStateMode) {
+        switch(formStateMode){
+            case 2:
+                return (<a className='btn' id="capture-mode-btn" onClick={() => this.goToCaptureMode()}>Add Card</a>);
+            case 1:
+                return (<a className='btn' id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>);
+            default:
+                return (<span className='btn alert'>Whoa! what happened here!?</span>);
+        }
+    }
+
     render() {
         return (<div>
             <form id="form">
                 <div className="line right" id="swap-btns">
-                    <a className={this.showClass(this.state.formState.mode == 2) + ' btn'} id="capture-mode-btn" onClick={() => this.goToCaptureMode()}>Add Card</a>
-                    <a className={this.showClass(this.state.formState.mode == 1) + ' btn'} id="view-mode-btn" onClick={() => this.goToViewMode()}>View cards</a>
+                    {this.getCurrentButton(this.state.formState.mode)}
                 </div>
-                <p>You have {this.state.cards.length} cards</p>
-                <CapturePane cssClass={this.showClass(this.state.formState.mode == 1)} phase={this.state.formState.phase } onClick={() => this.captureContinue()} />
+                <p>You have {this.currentStackOfCards.length} cards ({this.state.cards.length} total)</p>
+                <CapturePane 
+                    stacks={this.allStacks}
+                    cssClass={this.showClass(this.state.formState.mode == 1)}
+                    addCard={this.addCard.bind(this)} />
                 <ViewPane
                     moveCardToStackHandler={this.moveCardToStackHandler.bind(this)}
                     stacks={this.allStacks}
-                    cards={this.state.cards}
+                    cards={this.currentStackOfCards}
                     currentCard={this.state.currCard}
                     answerVisible={this.state.answerVisible}
                     viewCardNextContinue={() => this.showAnswer()}

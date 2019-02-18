@@ -25,7 +25,7 @@ export default class ViewPane extends React.Component {
                 <select onChange={(e) => stackSelectHandler(e.target.value)}>{buildStackOptions(stacks, false)}</select>
             </div>
             {
-                filteredCards && filteredCards.length
+                currentCard && filteredCards && filteredCards.length
                 ? <ViewCard moveCardToStackHandler={moveCardToStackHandler} stacks={stacks} card={currentCard} answerVisible={answerVisible} onClick={viewCardNextContinue} />
                 : <h3>You have to make flashcards first, silly goose :-)</h3>
             }

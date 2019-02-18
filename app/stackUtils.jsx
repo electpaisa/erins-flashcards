@@ -14,9 +14,9 @@ export const getStackLabel = (stackName) => {
     }
 }
 
-export const buildStackOptions = (cards, addNewStackOption) => {
+export const buildStackOptions = (stackList, addNewStackOption) => {
     if (addNewStackOption) {
-        cards.push(CONSTS.ADD_NEW_STACK_SENTINEL_VALUE);
+        stackList.push(CONSTS.ADD_NEW_STACK_SENTINEL_VALUE);
     }
-    return cards.map((s) => <option key={s} value={s}>{getStackLabel(s)}</option>)
+    return stackList.map((s) => <option key={s} value={s}>{getStackLabel(s)}</option>)
 }
