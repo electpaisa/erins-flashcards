@@ -8,8 +8,7 @@ const BUILD_DIR = path.resolve(__dirname, '');
 const APP_DIR = path.resolve(__dirname, 'app');
 
 module.exports = env => {
-    var target = env.web ? 'web' : 'electron-renderer';
-    console.log(env.web, target);
+    var target = env && env.web ? 'web' : 'electron-renderer';
     return {
         target : target,
         mode: "development",

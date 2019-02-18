@@ -3,6 +3,7 @@ import { css, jsx } from '@emotion/core'
 import React from 'react';
 import * as CONSTS from './constants';
 import {buildStackOptions} from "./stackUtils";
+import {hidden} from "./utilityStyles";
 
 export default class ViewCard extends React.Component{
     constructor (props) {
@@ -29,7 +30,7 @@ export default class ViewCard extends React.Component{
             border: 1px solid #ccc;
             padding: 1rem 2rem;
             max-width: 75%;
-            height: 17vmin;
+            min-height: 17vmin;
             margin: 2rem auto;
             box-shadow: 5px 5px 4px 4px rgba(0, 0, 0, 0.25);
             position:relative;
@@ -52,8 +53,8 @@ export default class ViewCard extends React.Component{
                     <a href="javascript:void(0);" onClick={onClick}>Next</a>
                 </div>
             </div>
-            <div className="line" id="stack-choice-container">
-                Send to stack: <select value={this.state.selectedStack} onChange={onChange}>{renderedStacks}</select>
+            <div css={!answerVisible && hidden} className="line" id="stack-choice-container">
+                Send to stack: <select value={card.stack || ''} onChange={onChange}>{renderedStacks}</select>
             </div>
         </div>);
     }

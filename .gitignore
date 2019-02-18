@@ -2,4 +2,5 @@
 **release-builds**
 **.vscode**
 bundle.js
+**.js.map
 bundle.js.map

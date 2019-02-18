@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ViewPane from './ViewPane';
 import { CapturePane } from './CapturePane';
+import Modal from './Modal';
 import * as CONSTS from "./constants";
 
 class FlashcardsApp extends React.Component {
@@ -16,7 +17,8 @@ class FlashcardsApp extends React.Component {
             },
             currCard: {},
             currStack: '',
-            answerVisible: false
+            answerVisible: false,
+            showModal: false
         };
     }
 
@@ -93,11 +95,12 @@ class FlashcardsApp extends React.Component {
         return this.showClass(!booley);
     }
 
-    moveCardToStackHandler(cardId, stack) {
+    moveCardToStackHandler(cardId, stack, modalCallback) {
         console.log(`assigning card ID ${cardId} to stack ${stack}`);
         if (stack === CONSTS.ADD_NEW_STACK_SENTINEL_VALUE) {
             // little low rent, but it'll do for now
-            stack = prompt("What d'you wanna call the new stack?", '').trim();
+            this.setState({...this.state, showModal: true});
+            return;
         }
         // clone the card array
         let newCards = this.state.cards.slice(0) || [];
@@ -111,9 +114,12 @@ class FlashcardsApp extends React.Component {
         }
         // change the stack in the card
         newCards[indexOfModified].stack = stack;
-        this.setState((state) => ({...state, cards: newCards}), () => {
+        this.setState((state) => ({...state, cards: newCards, currCard: newCards.splice(indexOfModified, 1)[0], showModal: false}), () => {
             // if the state got changed, save to localstorage
             localStorage.setItem("cards", JSON.stringify(newCards));
+            if (typeof modalCallback === "function") {
+                modalCallback();
+            }
         })
     }
 
@@ -159,6 +165,10 @@ class FlashcardsApp extends React.Component {
                     {this.getCurrentButton(this.state.formState.mode)}
                 </div>
                 <p>You have {this.currentStackOfCards.length} cards ({this.state.cards.length} total)</p>
+                <Modal
+                    show={this.state.showModal}
+                    updateFn={((cardId, stack) => {this.moveCardToStackHandler(cardId, stack)}).bind(this)}
+                    cardId={this.state.currCard && this.state.currCard.id} />
                 <CapturePane 
                     stacks={this.allStacks}
                     cssClass={this.showClass(this.state.formState.mode == 1)}
