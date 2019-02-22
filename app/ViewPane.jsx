@@ -22,7 +22,7 @@ export default class ViewPane extends React.Component {
         return (<div className={hidden ? 'hidden' : ''}>
             <div>
                 <label>View stack:</label>
-                <select onChange={(e) => stackSelectHandler(e.target.value)}>{buildStackOptions(stacks, false)}</select>
+                <select name="selectStack" onChange={(e) => stackSelectHandler(e.target.value)}>{buildStackOptions(stacks, false)}</select>
             </div>
             {
                 currentCard && filteredCards && filteredCards.length

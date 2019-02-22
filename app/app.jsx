@@ -105,22 +105,20 @@ class FlashcardsApp extends React.Component {
         // clone the card array
         let newCards = this.state.cards.slice(0) || [];
         // find the card, there's probably a smarter way to do this, but I dunno it
-        let indexOfModified = 0;
         for(let i = 0; i < newCards.length; i++) {
             if (newCards[i].id === cardId) {
-                indexOfModified = i;
+                newCards[i].stack = stack;
+                this.setState({...this.state, cards: newCards, currCard: newCards.slice(i, 1)[0], showModal: false}, () => {
+                    // if the state got changed, save to localstorage
+                    localStorage.setItem("cards", JSON.stringify(newCards));
+                    if (typeof modalCallback === "function") {
+                        modalCallback();
+                    }
+                    this.pickACard();
+                });
                 break;
             }
         }
-        // change the stack in the card
-        newCards[indexOfModified].stack = stack;
-        this.setState((state) => ({...state, cards: newCards, currCard: newCards.splice(indexOfModified, 1)[0], showModal: false}), () => {
-            // if the state got changed, save to localstorage
-            localStorage.setItem("cards", JSON.stringify(newCards));
-            if (typeof modalCallback === "function") {
-                modalCallback();
-            }
-        })
     }
 
     selectStackHandler(stack) {
