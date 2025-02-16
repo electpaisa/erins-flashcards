@@ -1,0 +1,17 @@
+.card {
+    border: 1px solid #ccc;
+    padding: 1rem 2rem;
+    max-width: 75%;
+    min-height: 17vmin;
+    margin: 2rem auto;
+    box-shadow: 5px 5px 4px 4px rgba(0, 0, 0, 0.25);
+    position:relative;
+}
+
+.next-link {
+    position:absolute;
+    bottom: 2rem;
+    right: 2rem;
+    display:inline-block;
+    width:auto;
+}

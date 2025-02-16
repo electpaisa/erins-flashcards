@@ -1,0 +1,41 @@
+
+@import './style.scss';
+
+@mixin autosize {
+    display: inline-block;
+    width: auto;
+}
+
+.clearfix {
+    @include center;
+    overflow : auto;
+    margin: 1rem 0;
+    &::after {
+        content:"";
+        clear: both;
+        display:table;
+    }
+}
+
+.autosize {
+    @include autosize();
+}
+
+.small-container {
+    @include autosize();
+    @include line()
+}
+
+.line {
+    @include line();
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+}
+
+.inner {
+    text-align: left !important;
+    @include autosize();
+}

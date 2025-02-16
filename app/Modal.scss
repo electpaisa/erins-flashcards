@@ -1,0 +1,29 @@
+.overlay {
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.25);
+    position: fixed;
+}
+
+.dialog {
+    z-index: 3;
+    width: 25vw;
+    height: 15vw;
+    position: absolute;
+    top: 3vh;
+    left: 37.5vw;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.right {
+    text-align: right;
+    margin:2rem; 
+}
+
+.input {
+    margin-left: 1.5rem;
+}

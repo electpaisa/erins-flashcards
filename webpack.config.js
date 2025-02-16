@@ -36,11 +36,15 @@ module.exports = env => {
                     include: APP_DIR,
                     use : {
                         loader: 'babel-loader',
-                        query: {
-                            presets: ['es2015', 'react'],
-                            plugins:[ 'transform-object-rest-spread' ]
-                        },
                     },
+                },
+                {
+                    test: /\.s[ac]ss$/i,
+                    use: [
+                        "style-loader",
+                        "css-loader",
+                        "sass-loader"
+                    ]
                 }
             ]
         },
